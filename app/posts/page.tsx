@@ -1,11 +1,21 @@
 "use client";
 import axios from "axios";
 import Link from "next/link";
+
 import { useEffect, useState } from "react";
 
-export default function Posts() {
-    const [posts, setPosts] = useState([]);
 
+interface Post {
+    id: number;
+    title: string;
+    content: string;
+}
+
+export default function Posts() {
+    const [posts, setPosts] = useState<Post[]>([]);
+   
+
+    // Fetch posts from the server
     const fetchRecords = async () => {
         try {
             const response = await axios.get("http://localhost:5000/posts");
@@ -19,10 +29,11 @@ export default function Posts() {
         fetchRecords();
     }, []);
 
-    const handleDelete = async (id) => {
+    // Handle post deletion
+    const handleDeletePost = async (id:number) => {
         try {
             await axios.delete(`http://localhost:5000/posts/${id}`);
-            setPosts(posts.filter(post => post.id !== id));
+            setPosts(posts.filter((post) => post.id !== id)); // Update the state to remove the deleted post
         } catch (error) {
             console.error("Error deleting post:", error);
         }
@@ -57,13 +68,18 @@ export default function Posts() {
                                     <td className="py-3 px-6 text-left">{post.title}</td>
                                     <td className="py-3 px-6 text-left">{post.content}</td>
                                     <td className="py-3 px-6 text-center">
-                                        <Link href={`/posts/edit/${post.id}`}>
+                                        <Link href={`/posts/${post.id}`}>
+                                            <button className="bg-yellow-500 text-white py-1 px-3 mr-2 rounded hover:bg-yellow-700">
+                                                View
+                                            </button>
+                                        </Link>
+                                        <Link href={`/posts/${post.id}`}>
                                             <button className="bg-yellow-500 text-white py-1 px-3 mr-2 rounded hover:bg-yellow-700">
                                                 Edit
                                             </button>
                                         </Link>
                                         <button
-                                            
+                                            onClick={() => handleDeletePost(post.id)}  // Fix: Passing the post id
                                             className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-700"
                                         >
                                             Delete
